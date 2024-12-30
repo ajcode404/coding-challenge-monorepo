@@ -1,24 +1,41 @@
 package main
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
-type Command struct {
-	keyword string
-	input   string
+const HELP_TEXT = `Usage wc [OPTION] [FILENAME]
+	-c, --bytes            print the byte counts
+`
+
+type CountCommand struct {
+	input string
 }
 
-func parseCommandLineArgs() string {
+func (c CountCommand) execute() {
+	bytes, err := os.ReadFile(c.input)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("%d %s\n", len(bytes), c.input)
+}
+
+func parseCommandLineArgs() {
 	args := os.Args[1:]
-	if len(args)%2 != 0 {
-		panic("Incorrect format of the command")
+	if len(args) != 2 {
+		fmt.Print(HELP_TEXT)
+		return
 	}
-	for i := 0; i < len(args); i++ {
-		keyword, input := args[i], args[i+1]
-		if keyword == "-c" {
-
-		}
-
+	if args[0] != "-c" && args[0] != "--bytes" {
+		fmt.Print(HELP_TEXT)
+		return
 	}
+	countCmd := &CountCommand{
+		input: args[1],
+	}
+	countCmd.execute()
 }
 
 func main() {
