@@ -1,3 +1,3 @@
-module ajcode404.github.io/m
+module wc-tool
 
 go 1.23.4

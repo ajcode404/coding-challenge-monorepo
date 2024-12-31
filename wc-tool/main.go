@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
-	"ajcode404.github.io/m/commands"
+	"wc-tool/commands"
 )
 
 const HELP_TEXT = `Usage wc [OPTION] [FILENAME]
@@ -18,40 +17,12 @@ func PrintHelpText() {
 	fmt.Print(HELP_TEXT)
 }
 
-func isCountCommand(commands []string) bool {
-	for _, el := range commands {
-		if el == "-c" || el == "--bytes" {
-			return true
-		}
-	}
-	return false
-}
-
-func isLineCommand(commands []string) bool {
-	for _, el := range commands {
-		if el == "-l" || el == "--lines" {
-			return true
-		}
-	}
-	return false
-}
-
-func isWordCommand(commands []string) bool {
-	for _, el := range commands {
-		if el == "-w" || el == "--words" {
-			return true
-		}
-	}
-	return false
-}
-
-// Cannot think of any good name TBH
-type WordCount struct {
+type CInput struct {
 	commands []string
 	fileName string
 }
 
-func parseCommandLineArgs() (*WordCount, error) {
+func ParseCommandLineArgs() (*CInput, error) {
 	args := os.Args[1:]
 	var commandsList []string
 	var file string = ""
@@ -65,49 +36,27 @@ func parseCommandLineArgs() (*WordCount, error) {
 	}
 
 	if file == "" || len(commandsList) == 0 {
-		PrintHelpText()
 		return nil, fmt.Errorf("either file or commands are not passed")
 	}
 
-	return &WordCount{
-		commands: commandsList,
-		fileName: file,
-	}, nil
+	return &CInput{commandsList, file}, nil
 }
 
 func main() {
-	wordCount, err := parseCommandLineArgs()
+	cInput, err := ParseCommandLineArgs()
+	if err != nil {
+		PrintHelpText()
+		return
+	}
+	file, err := os.ReadFile(cInput.fileName)
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
-
 	var outputString string = ""
-
-	if isCountCommand(wordCount.commands) {
-		o, err := commands.CountCommand(wordCount.fileName)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		outputString += fmt.Sprintf("c:%d", o) + " "
-	}
-	if isLineCommand(wordCount.commands) {
-		o, err := commands.LineCommand(wordCount.fileName)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		outputString += fmt.Sprintf("l:%d", o) + " "
-	}
-
-	if isWordCommand(wordCount.commands) {
-		o, err := commands.WordCommand(wordCount.fileName)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		outputString += fmt.Sprintf("w:%d", o) + " "
-	}
+	outputString += commands.CountCommand(&commands.WordCount{Commands: cInput.commands, FileBytes: file}) + " "
+	outputString += commands.LineCommand(&commands.WordCount{Commands: cInput.commands, FileBytes: file}) + " "
+	outputString += commands.WordCommand(&commands.WordCount{Commands: cInput.commands, FileBytes: file}) + " "
 	outputString = strings.TrimRight(outputString, " ")
-	fmt.Printf("%s %s\n", outputString, wordCount.fileName)
+	fmt.Printf("%s %s\n", outputString, cInput.fileName)
 }

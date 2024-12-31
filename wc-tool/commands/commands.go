@@ -1,31 +1,60 @@
 package commands
 
 import (
-	"os"
+	"fmt"
 	"strings"
 )
 
-func CountCommand(fileName string) (int, error) {
-	bytes, err := os.ReadFile(fileName)
-	if err != nil {
-		return -1, err
-	}
-	return len(bytes), nil
+// Cannot think of any good name TBH
+type WordCount struct {
+	Commands  []string
+	FileBytes []byte
 }
 
-func LineCommand(fileName string) (int, error) {
-	bytes, err := os.ReadFile(fileName)
-	if err != nil {
-		return -1, err
+func CountCommand(wc *WordCount) string {
+	if !isCountCommand(wc.Commands) {
+		return ""
 	}
-	newLineCount := len(strings.Split(string(bytes), "\n")) - 1
-	return newLineCount, nil
+	return fmt.Sprint(len(wc.FileBytes))
+}
+func LineCommand(wc *WordCount) string {
+	if !isLineCommand(wc.Commands) {
+		return ""
+	}
+	newLineCount := len(strings.Split(string(wc.FileBytes), "\n")) - 1
+	return fmt.Sprint(newLineCount)
 }
 
-func WordCommand(fileName string) (int, error) {
-	bytes, err := os.ReadFile(fileName)
-	if err != nil {
-		return -1, err
+func WordCommand(wc *WordCount) string {
+	if !isWordCommand(wc.Commands) {
+		return ""
 	}
-	return len(strings.Fields(string(bytes))), nil
+	return fmt.Sprint(len(strings.Fields(string(wc.FileBytes))))
+}
+
+func isCountCommand(commands []string) bool {
+	for _, el := range commands {
+		if el == "-c" || el == "--bytes" {
+			return true
+		}
+	}
+	return false
+}
+
+func isLineCommand(commands []string) bool {
+	for _, el := range commands {
+		if el == "-l" || el == "--lines" {
+			return true
+		}
+	}
+	return false
+}
+
+func isWordCommand(commands []string) bool {
+	for _, el := range commands {
+		if el == "-w" || el == "--words" {
+			return true
+		}
+	}
+	return false
 }
