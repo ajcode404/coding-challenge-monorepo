@@ -66,14 +66,13 @@ func parseCommandLineArgs() (*WordCount, error) {
 
 	if file == "" || len(commandsList) == 0 {
 		PrintHelpText()
-		return nil, fmt.Errorf("Either file or commands are not passed")
+		return nil, fmt.Errorf("either file or commands are not passed")
 	}
 
 	return &WordCount{
 		commands: commandsList,
 		fileName: file,
 	}, nil
-
 }
 
 func main() {
@@ -85,23 +84,15 @@ func main() {
 	var outputString string = ""
 
 	if isCountCommand(wordCount.commands) {
-
-		countCmd := &commands.CountCommand{
-			FileName: wordCount.fileName,
-		}
-		o, err := countCmd.Execute()
+		o, err := commands.CountCommand(wordCount.fileName)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		outputString += fmt.Sprintf("c:%d", o) + " "
 	}
-
 	if isLineCommand(wordCount.commands) {
-		lineCmd := &commands.LineCommand{
-			FileName: wordCount.fileName,
-		}
-		o, err := lineCmd.Execute()
+		o, err := commands.LineCommand(wordCount.fileName)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -110,10 +101,7 @@ func main() {
 	}
 
 	if isWordCommand(wordCount.commands) {
-		wordCommand := &commands.WordCommand{
-			FileName: wordCount.fileName,
-		}
-		o, err := wordCommand.Execute()
+		o, err := commands.WordCommand(wordCount.fileName)
 		if err != nil {
 			fmt.Println(err)
 			return
