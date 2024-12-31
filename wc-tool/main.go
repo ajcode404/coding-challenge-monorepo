@@ -94,7 +94,7 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-		outputString += fmt.Sprintf("%d", o) + " "
+		outputString += fmt.Sprintf("c:%d", o) + " "
 	}
 
 	if isLineCommand(wordCount.commands) {
@@ -106,7 +106,7 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-		outputString += fmt.Sprintf("%d", o) + " "
+		outputString += fmt.Sprintf("l:%d", o) + " "
 	}
 
 	if isWordCommand(wordCount.commands) {
@@ -118,9 +118,8 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-		outputString += fmt.Sprintf("%d", o) + " "
+		outputString += fmt.Sprintf("w:%d", o) + " "
 	}
 	outputString = strings.TrimRight(outputString, " ")
 	fmt.Printf("%s %s\n", outputString, wordCount.fileName)
-
 }
