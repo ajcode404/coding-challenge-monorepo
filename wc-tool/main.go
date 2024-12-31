@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
+
+	"ajcode404.github.io/m/commands"
 )
 
 const HELP_TEXT = `Usage wc [OPTION] [FILENAME]
@@ -12,36 +13,7 @@ const HELP_TEXT = `Usage wc [OPTION] [FILENAME]
 `
 
 func PrintHelpText() {
-
 	fmt.Print(HELP_TEXT)
-}
-
-type CountCommand struct {
-	input string
-}
-
-func (c CountCommand) execute() {
-	bytes, err := os.ReadFile(c.input)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Printf("%d %s\n", len(bytes), c.input)
-}
-
-type LineCommand struct {
-	input string
-}
-
-func (c LineCommand) execute() {
-	bytes, err := os.ReadFile(c.input)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	text := strings.Split(string(bytes), "\n")
-	// -1 due to we want to count \n and not the number of lines.
-	fmt.Printf("%d %s\n", len(text)-1, c.input)
 }
 
 func isCountCommand(command string) bool {
@@ -51,25 +23,35 @@ func isCountCommand(command string) bool {
 func isLineCommand(command string) bool {
 	return command == "-l" || command == "--lines"
 }
-
 func parseCommandLineArgs() {
 	args := os.Args[1:]
 	if len(args) != 2 {
 		PrintHelpText()
 		return
 	}
+
 	if isCountCommand(args[0]) {
-		countCmd := &CountCommand{
-			input: args[1],
+		countCmd := &commands.CountCommand{
+			FileName: args[1],
 		}
-		countCmd.execute()
+		o, err := countCmd.Execute()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Printf("%s %s\n", o, countCmd.FileName)
 	}
 
 	if isLineCommand(args[0]) {
-		lineCmd := &LineCommand{
-			input: args[1],
+		lineCmd := &commands.LineCommand{
+			FileName: args[1],
 		}
-		lineCmd.execute()
+		o, err := lineCmd.Execute()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Printf("%s %s\n", o, lineCmd.FileName)
 	}
 }
 
