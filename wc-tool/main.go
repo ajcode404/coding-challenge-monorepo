@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"ajcode404.github.io/m/commands"
 )
@@ -17,59 +18,90 @@ func PrintHelpText() {
 	fmt.Print(HELP_TEXT)
 }
 
-func isCountCommand(command string) bool {
-	return command == "-c" || command == "--bytes"
+func isCountCommand(commands []string) bool {
+	for _, el := range commands {
+		if el == "-c" || el == "--bytes" {
+			return true
+		}
+	}
+	return false
 }
 
-func isLineCommand(command string) bool {
-	return command == "-l" || command == "--lines"
+func isLineCommand(commands []string) bool {
+	for _, el := range commands {
+		if el == "-l" || el == "--lines" {
+			return true
+		}
+	}
+	return false
 }
 
-func isWordCommand(command string) bool {
-	return command == "-w" || command == "--words"
+func isWordCommand(commands []string) bool {
+	for _, el := range commands {
+		if el == "-w" || el == "--words" {
+			return true
+		}
+	}
+	return false
 }
 
 func parseCommandLineArgs() {
 	args := os.Args[1:]
-	if len(args) != 2 {
+	var commandsList []string
+	var file string = ""
+	for i := 0; i < len(args); i++ {
+		if strings.HasPrefix(args[i], "-") || strings.HasPrefix(args[i], "--") {
+			commandsList = append(commandsList, args[i])
+		} else {
+			// Supports single file for now
+			file = args[i]
+		}
+	}
+
+	if file == "" || len(commandsList) == 0 {
 		PrintHelpText()
 		return
 	}
 
-	if isCountCommand(args[0]) {
+	var outputString string = ""
+
+	if isCountCommand(commandsList) {
+
 		countCmd := &commands.CountCommand{
-			FileName: args[1],
+			FileName: file,
 		}
 		o, err := countCmd.Execute()
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Printf("%d %s\n", o, countCmd.FileName)
+		outputString += fmt.Sprintf("%d", o) + " "
 	}
 
-	if isLineCommand(args[0]) {
+	if isLineCommand(commandsList) {
 		lineCmd := &commands.LineCommand{
-			FileName: args[1],
+			FileName: file,
 		}
 		o, err := lineCmd.Execute()
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Printf("%d %s\n", o, lineCmd.FileName)
+		outputString += fmt.Sprintf("%d", o) + " "
 	}
 
-	if isWordCommand(args[0]) {
+	if isWordCommand(commandsList) {
 		wordCommand := &commands.WordCommand{
-			FileName: args[1],
+			FileName: file,
 		}
 		o, err := wordCommand.Execute()
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Printf("%d %s\n", o, wordCommand.FileName)
+		outputString += fmt.Sprintf("%d", o) + " "
 	}
+	outputString = strings.TrimRight(outputString, " ")
+	fmt.Printf("%s %s\n", outputString, file)
 }
 
 func main() {
