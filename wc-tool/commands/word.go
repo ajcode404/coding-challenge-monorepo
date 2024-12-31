@@ -14,6 +14,5 @@ func (w WordCommand) Execute() (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	wordCount := len(strings.Split(string(bytes), " ")) - 1
-	return wordCount, nil
+	return len(strings.Fields(string(bytes))), nil
 }
