@@ -23,6 +23,11 @@ func isCountCommand(command string) bool {
 func isLineCommand(command string) bool {
 	return command == "-l" || command == "--lines"
 }
+
+func isWordCommand(command string) bool {
+	return command == "-w" || command == "--words"
+}
+
 func parseCommandLineArgs() {
 	args := os.Args[1:]
 	if len(args) != 2 {
@@ -39,7 +44,7 @@ func parseCommandLineArgs() {
 			fmt.Println(err)
 			return
 		}
-		fmt.Printf("%s %s\n", o, countCmd.FileName)
+		fmt.Printf("%d %s\n", o, countCmd.FileName)
 	}
 
 	if isLineCommand(args[0]) {
@@ -51,7 +56,18 @@ func parseCommandLineArgs() {
 			fmt.Println(err)
 			return
 		}
-		fmt.Printf("%s %s\n", o, lineCmd.FileName)
+		fmt.Printf("%d %s\n", o, lineCmd.FileName)
+	}
+
+	if isWordCommand(args[0]) {
+		wordCommand := &commands.WordCommand{
+			FileName: args[1],
+		}
+		o, err := wordCommand.Execute()
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Printf("%d %s\n", o, wordCommand.FileName)
 	}
 }
 

@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	"os"
 )
 
@@ -9,10 +8,10 @@ type CountCommand struct {
 	FileName string
 }
 
-func (c CountCommand) Execute() (string, error) {
+func (c CountCommand) Execute() (int, error) {
 	bytes, err := os.ReadFile(c.FileName)
 	if err != nil {
-		return "", err
+		return -1, err
 	}
-	return fmt.Sprintf("%d", len(bytes)), nil
+	return len(bytes), nil
 }
