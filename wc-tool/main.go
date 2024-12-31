@@ -11,6 +11,11 @@ const HELP_TEXT = `Usage wc [OPTION] [FILENAME]
 	-l, --lines            print the newline counts
 `
 
+func PrintHelpText() {
+
+	fmt.Print(HELP_TEXT)
+}
+
 type CountCommand struct {
 	input string
 }
@@ -35,11 +40,12 @@ func (c LineCommand) execute() {
 		return
 	}
 	text := strings.Split(string(bytes), "\n")
-	fmt.Printf("%d %s\n", len(text), c.input)
+	// -1 due to we want to count \n and not the number of lines.
+	fmt.Printf("%d %s\n", len(text)-1, c.input)
 }
 
 func isCountCommand(command string) bool {
-	return (command == "-c" || command == "--bytes")
+	return command == "-c" || command == "--bytes"
 }
 
 func isLineCommand(command string) bool {
@@ -49,7 +55,7 @@ func isLineCommand(command string) bool {
 func parseCommandLineArgs() {
 	args := os.Args[1:]
 	if len(args) != 2 {
-		fmt.Print(HELP_TEXT)
+		PrintHelpText()
 		return
 	}
 	if isCountCommand(args[0]) {
@@ -58,6 +64,7 @@ func parseCommandLineArgs() {
 		}
 		countCmd.execute()
 	}
+
 	if isLineCommand(args[0]) {
 		lineCmd := &LineCommand{
 			input: args[1],
