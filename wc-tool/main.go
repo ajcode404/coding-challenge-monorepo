@@ -10,6 +10,7 @@ import (
 const HELP_TEXT = `Usage wc [OPTION] [FILENAME]
 	-c, --bytes            print the byte counts
 	-l, --lines            print the newline counts
+	-w, --words            print the word counts
 `
 
 func PrintHelpText() {
