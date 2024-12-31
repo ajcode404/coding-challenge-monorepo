@@ -45,7 +45,13 @@ func isWordCommand(commands []string) bool {
 	return false
 }
 
-func parseCommandLineArgs() {
+// Cannot think of any good name TBH
+type WordCount struct {
+	commands []string
+	fileName string
+}
+
+func parseCommandLineArgs() (*WordCount, error) {
 	args := os.Args[1:]
 	var commandsList []string
 	var file string = ""
@@ -60,15 +66,28 @@ func parseCommandLineArgs() {
 
 	if file == "" || len(commandsList) == 0 {
 		PrintHelpText()
-		return
+		return nil, fmt.Errorf("Either file or commands are not passed")
+	}
+
+	return &WordCount{
+		commands: commandsList,
+		fileName: file,
+	}, nil
+
+}
+
+func main() {
+	wordCount, err := parseCommandLineArgs()
+	if err != nil {
+		fmt.Println(err)
 	}
 
 	var outputString string = ""
 
-	if isCountCommand(commandsList) {
+	if isCountCommand(wordCount.commands) {
 
 		countCmd := &commands.CountCommand{
-			FileName: file,
+			FileName: wordCount.fileName,
 		}
 		o, err := countCmd.Execute()
 		if err != nil {
@@ -78,9 +97,9 @@ func parseCommandLineArgs() {
 		outputString += fmt.Sprintf("%d", o) + " "
 	}
 
-	if isLineCommand(commandsList) {
+	if isLineCommand(wordCount.commands) {
 		lineCmd := &commands.LineCommand{
-			FileName: file,
+			FileName: wordCount.fileName,
 		}
 		o, err := lineCmd.Execute()
 		if err != nil {
@@ -90,20 +109,18 @@ func parseCommandLineArgs() {
 		outputString += fmt.Sprintf("%d", o) + " "
 	}
 
-	if isWordCommand(commandsList) {
+	if isWordCommand(wordCount.commands) {
 		wordCommand := &commands.WordCommand{
-			FileName: file,
+			FileName: wordCount.fileName,
 		}
 		o, err := wordCommand.Execute()
 		if err != nil {
 			fmt.Println(err)
+			return
 		}
 		outputString += fmt.Sprintf("%d", o) + " "
 	}
 	outputString = strings.TrimRight(outputString, " ")
-	fmt.Printf("%s %s\n", outputString, file)
-}
+	fmt.Printf("%s %s\n", outputString, wordCount.fileName)
 
-func main() {
-	parseCommandLineArgs()
 }
